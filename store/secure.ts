@@ -1,8 +1,7 @@
-import * as SecureStore from "expo-secure-store";
 
 export const Storage = {
-  get: (name: string, _default?: any): any | null =>
-    getItemFromSecureStorage(name, _default),
+  get: (name: string, _default?: any): any | null => "dark",
+   //  getItemFromSecureStorage(name, _default),
   multiGet: (nameAndType: [string, any][]): any | null =>
     multiGetItemFromSecureStorage(nameAndType),
   save: (name: string, item: any): void => saveItemToSecureStorage(name, item),
@@ -14,7 +13,7 @@ export const Storage = {
 
 const getItemFromSecureStorage = (name: string, _default?: any) => {
   try {
-    let item = SecureStore.getItem(name);
+    let item = "23";
     return (item && JSON.parse(item)) || _default;
   } catch (error) {
     return _default;
@@ -25,7 +24,7 @@ const multiGetItemFromSecureStorage = (nameAndType: [string, any][]) => {
   try {
     let returnArray = [];
     for (let item in nameAndType) {
-      let storageItem = SecureStore.getItem(nameAndType[0][0]);
+      let storageItem = "123";
       if (storageItem) {
         returnArray.push([
           JSON.parse(storageItem),
@@ -40,27 +39,13 @@ const multiGetItemFromSecureStorage = (nameAndType: [string, any][]) => {
 };
 
 const saveItemToSecureStorage = (name: string, item: any): void => {
-  try {
-    SecureStore.setItem(name, JSON.stringify(item));
-  } catch (error) {
-    console.log(error);
-  }
+  return
 };
 
 const multiSaveItemToSecureStorage = (nameAndItem: [string, any][]): void => {
-  try {
-    for (let item of nameAndItem) {
-      SecureStore.setItem(item[0], JSON.stringify(item[1]));
-    }
-  } catch (error) {
-    console.log(error);
-  }
+ return 
 };
 
 const removeItemFromSecureStorage = async (name: string): Promise<void> => {
-  try {
-    await SecureStore.deleteItemAsync(name);
-  } catch (error) {
-    console.log(error);
-  }
+  return 
 };

@@ -1,10 +1,16 @@
 import { SessionProvider } from "@/hooks/ctx";
-import { ThemeProvider, _useThemeColor } from "@/hooks/useThemeColor";
+import {_useThemeColor, ThemeProvider } from "@/hooks/useThemeColor";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
+import { magicAuth } from "@/auth/auth";
+import { View, Text } from "react-native";
+
+
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,9 +29,16 @@ export default function RootLayout() {
     return null;
   }
 
+  const magic = magicAuth;
+
+  if(!magic) {
+    return <View><Text>Loading...</Text></View>
+  }
+  
   return (
-    <ThemeProvider>
-      <SessionProvider>
+  <ThemeProvider >
+    <magic.Relayer />
+   <SessionProvider>
         <GestureHandlerRootView>
           <Stack>
             <Stack.Screen
@@ -35,11 +48,15 @@ export default function RootLayout() {
                 headerBackVisible: false,
                 headerShown: false,
               }}
-            />
+              />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           </Stack>
         </GestureHandlerRootView>
-      </SessionProvider>
-    </ThemeProvider>
+        </SessionProvider>
+   
+      </ThemeProvider>
   );
+
+
+  
 }

@@ -4,9 +4,10 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Redirect, SplashScreen, Stack } from "expo-router";
 import React, { useEffect } from "react";
 import { Appearance, Text, View } from "react-native";
+import { Magic } from '@magic-sdk/react-native-expo'
+import {magicAuth } from "@/auth/auth";
 
 export default function AppLayout() {
-  const { session, isLoading } = useSession();
   const { colors, toggleTheme } = useThemeColor();
 
   useEffect(() => {
@@ -18,18 +19,14 @@ export default function AppLayout() {
   const onThemeChange = (preferences: Appearance.AppearancePreferences) =>
     toggleTheme(preferences.colorScheme as "light" | "dark");
 
-  if (isLoading) {
-    return <Text>Loading…</Text>;
-  }
-
   setTimeout(() => {
     SplashScreen.hideAsync();
   }, 500);
 
-  // if (!session) {
-  if (session) {
-    return <Redirect href="/welcome" />;
+  if (!(magicAuth.user.isLoggedIn())) {
+    return <Redirect href="/login" />;
   }
+  
 
   return (
     <Stack

@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+
 import * as React from 'react';
 import { Platform } from 'react-native';
 
@@ -17,11 +17,7 @@ function useAsyncState<T>(
 }
 
 export async function setStorageItemAsync(key: string, value: string | null) {
-  if (value === null) {
-    await SecureStore.deleteItemAsync(key);
-  } else {
-    await SecureStore.setItemAsync(key, value);
-  }
+ return
 }
 
 export function useStorageState(key: string): UseStateHook<string> {
@@ -29,11 +25,7 @@ export function useStorageState(key: string): UseStateHook<string> {
   const [state, setState] = useAsyncState<string>();
 
   // Get
-  React.useEffect(() => {
-    SecureStore.getItemAsync(key).then(value => {
-      setState(value);
-    });
-  }, [key]);
+  
 
   // Set
   const setValue = React.useCallback(
