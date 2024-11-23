@@ -35,11 +35,36 @@ export default function SettingsScreen() {
     }
   };
 
+  const displayLoginOrLogoutButton = async () => {
+    if (await magicAuth.user.isLoggedIn()) {
+      return "Login";
+    } else {
+      return "Logout";
+    }
+  }
+
+  const isLoggedIn = async () => {
+    return await magicAuth.user.isLoggedIn();
+  };
+
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const status = await isLoggedIn();
+      setLoggedIn(status);
+    };
+      {loggedIn && <Button text="Logout" onPress={logout}/>}
+  }, []);
+
+
   return (
     <View style={{ height: "100%", width: "100%" }}>
+      <Button text="Login" onPress={async () => {
+        router.push("/login");
+      }}/>
       <Button text="Show Info" onPress={showInfo}/>
-      <Button text={"Logout"} onPress={async() => await logout()} />
-    
+      {loggedIn && <Button text="Logout" onPress={logout}/>}
     </View>
   );
 }

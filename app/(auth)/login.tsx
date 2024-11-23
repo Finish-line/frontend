@@ -5,17 +5,18 @@ import { View, Text } from "react-native";
 import { SolanaExtension } from "@magic-ext/solana";
 import InputField from "@/components/input-field";
 import { useState } from "react";
-import { Redirect } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { magicAuth } from "@/auth/auth";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const login = async (email: string) => {
+  const login = async () => {
     setLoading(true);
     try {
       await magicAuth.auth.loginWithEmailOTP({ email: email });
+      router.push("/(main)/(tabs)");
     } catch (error) {
       console.log(error);
     }
@@ -33,22 +34,20 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", margin: 8 }}>
-      {/* <View style={{ flex: 1, justifyContent: "center" }}>
-       
-      </View>
+    <View style={{ flex: 2, justifyContent: "center", margin: 8 }}>
+     
       <View
         style={{
           paddingHorizontal: measurements.paddingHorizontal,
           paddingBottom: measurements.paddingBottom,
+      
         }}
       >
         <InputField placeholder="Email" value={email} onChange={(e) => setEmail(e.nativeEvent.text)}/>
-        <Button text={"Login"} onPress={async () => await login(email)} disabled={loading}/>
-          <Button text={"Logout"} onPress={async() => await logout()} disabled={loading}/> 
+        <Button text={"Login"} onPress={login} disabled={loading}/>
 
-      </View> */}
-      <Button
+      </View>
+      {/* <Button
         text={"Connect Wallet"}
         onPress={async () => {
           try {
@@ -59,7 +58,7 @@ export default function LoginScreen() {
           }
         }}
         disabled={loading}
-      />
+      /> */}
     </View>
   );
 }
