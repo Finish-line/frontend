@@ -1,12 +1,12 @@
 import Button from "@/components/button";
-import { measurements } from "@/constants/Measurements";
-import { Magic } from "@magic-sdk/react-native-expo";
 import { View, Text } from "react-native";
 import { SolanaExtension } from "@magic-ext/solana";
+
 import InputField from "@/components/input-field";
 import { useState } from "react";
 import { Redirect, router } from "expo-router";
 import { magicAuth } from "@/auth/auth";
+import { measurements } from "@/constants/Measurements";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -35,17 +35,18 @@ export default function LoginScreen() {
 
   return (
     <View style={{ flex: 2, justifyContent: "center", margin: 8 }}>
-     
       <View
         style={{
           paddingHorizontal: measurements.paddingHorizontal,
           paddingBottom: measurements.paddingBottom,
-      
         }}
       >
-        <InputField placeholder="Email" value={email} onChange={(e) => setEmail(e.nativeEvent.text)}/>
-        <Button text={"Login"} onPress={login} disabled={loading}/>
-
+        <InputField
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.nativeEvent.text)}
+        />
+        <Button text={"Login"} onPress={login} disabled={loading} />
       </View>
       {/* <Button
         text={"Connect Wallet"}
