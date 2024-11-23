@@ -1,3 +1,4 @@
+import "react-native-get-random-values";
 import { SessionProvider } from "@/hooks/ctx";
 import {_useThemeColor, ThemeProvider } from "@/hooks/useThemeColor";
 import { Stack } from "expo-router";
@@ -9,6 +10,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { magicAuth } from "@/auth/auth";
 import { View, Text } from "react-native";
+
+import "expo-crypto";
 
 
 

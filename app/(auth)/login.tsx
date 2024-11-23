@@ -40,8 +40,8 @@ export default function LoginScreen() {
   
   return (
     
-    <View>
-      <View style={{ flex: 1, justifyContent: "center" }}>
+    <View style={{ flex: 1, justifyContent: "center" , margin: 8}}>
+      {/* <View style={{ flex: 1, justifyContent: "center" }}>
        
       </View>
       <View
@@ -54,7 +54,19 @@ export default function LoginScreen() {
         <Button text={"Login"} onPress={async () => await login(email)} disabled={loading}/>
           <Button text={"Logout"} onPress={async() => await logout()} disabled={loading}/> 
 
-      </View>
+      </View> */}
+      <Button
+        text={"Connect Wallet"}
+        onPress={async () => {
+          try {
+            const result = await magicAuth.wallet.connectWithUI();
+            console.log("Wallet connected:", result);
+          } catch (error) {
+            console.log("Error connecting wallet:", error);
+          }
+        }}
+        disabled={loading}
+      />
     </View>
   );
 }
