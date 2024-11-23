@@ -7,11 +7,7 @@ import { StatusBar, useColorScheme } from "react-native";
 type SchemeOptions = "light" | "dark" | "automatic";
 
 export const getTheme = (): "light" | "dark" =>
-  Storage.get("@ThemeSettings", "automatic") === "automatic"
-    ? useColorScheme() === "light"
-      ? "light"
-      : "dark"
-    : Storage.get("@ThemeSettings", "automatic");
+  useColorScheme() === "light" ? "light" : "dark";
 
 export function _useThemeColor(): {
   colors: ThemeProps;

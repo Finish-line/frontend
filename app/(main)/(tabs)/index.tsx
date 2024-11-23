@@ -216,9 +216,9 @@ export default function IndexScreen() {
                 {new Intl.NumberFormat("de-DE", {
                   style: "currency",
                   currency: "EUR",
-                }).format(details?.price / 100 ?? 0)}
+                }).format((2 * details?.distance) / 1000 ?? 0)}
               </Title2>
-              <Subtitle>Est. Price</Subtitle>
+              <Subtitle>Rec. Price</Subtitle>
             </View>
           </View>
           <Divider style={{ marginVertical: measurements.marginBetween }} />

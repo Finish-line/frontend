@@ -1,7 +1,6 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Stack } from "expo-router";
 
-
 export default function AuthLayout() {
   const { colors } = useThemeColor();
 
@@ -22,7 +21,6 @@ export default function AuthLayout() {
         name="login"
         options={{ presentation: "card", headerTitle: "Login" }}
       />
-      <Stack.Screen name="signup" options={{ headerShown: false }} />
     </Stack>
   );
 }

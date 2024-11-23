@@ -36,6 +36,15 @@ export const Title2 = (props: TextProps) => (
   </TextBase>
 );
 
+export const Title1 = (props: TextProps) => (
+  <TextBase
+    {...props}
+    style={{ fontSize: font.title1, ...spreadStyle(props.style) }}
+  >
+    {props.children}
+  </TextBase>
+);
+
 export const Body = (props: TextProps) => (
   <TextBase
     {...props}

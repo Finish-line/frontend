@@ -1,6 +1,6 @@
 import "react-native-get-random-values";
 import { SessionProvider } from "@/hooks/ctx";
-import {_useThemeColor, ThemeProvider } from "@/hooks/useThemeColor";
+import { _useThemeColor, ThemeProvider } from "@/hooks/useThemeColor";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
@@ -12,8 +12,6 @@ import { magicAuth } from "@/auth/auth";
 import { View, Text } from "react-native";
 
 import "expo-crypto";
-
-
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,14 +32,18 @@ export default function RootLayout() {
 
   const magic = magicAuth;
 
-  if(!magic) {
-    return <View><Text>Loading...</Text></View>
+  if (!magic) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
-  
+
   return (
-  <ThemeProvider >
-    <magic.Relayer />
-   <SessionProvider>
+    <ThemeProvider>
+      <magic.Relayer />
+      <SessionProvider>
         <GestureHandlerRootView>
           <Stack>
             <Stack.Screen
@@ -51,15 +53,11 @@ export default function RootLayout() {
                 headerBackVisible: false,
                 headerShown: false,
               }}
-              />
+            />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           </Stack>
         </GestureHandlerRootView>
-        </SessionProvider>
-   
-      </ThemeProvider>
+      </SessionProvider>
+    </ThemeProvider>
   );
-
-
-  
 }
