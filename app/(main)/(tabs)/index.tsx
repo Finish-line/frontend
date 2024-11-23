@@ -1,14 +1,26 @@
 import SinglePersonMarker from "@/components/marker/single-person";
 import { measurements } from "@/constants/Measurements";
 import React, { useState, useEffect } from "react";
-import { View, Alert } from "react-native";
+import { View, Alert, TextInput, Text } from "react-native";
 import MapView from "react-native-maps";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import InputField from "@/components/input-field";
 import AnimatedWrapper from "@/components/animated-wrapper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { Divider } from "@/components/divider";
+import { font } from "@/constants/Font";
+import {
+  ImportantBody,
+  Subtitle,
+  Title2,
+  Title3,
+} from "@/components/text/text";
+import { subscribe, useSnapshot } from "valtio";
+import { userLocationStore } from "@/store/userLocationStore";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import Button from "@/components/button";
 interface LocationData {
   latitude: number;
   longitude: number;
@@ -27,6 +39,18 @@ export default function IndexScreen() {
   const [location, setLocation] = useState<LocationData | null>(null);
   const [mapRef, setMapRef] = useState<MapView | null>(null);
   const insets = useSafeAreaInsets();
+  const { colors } = useThemeColor();
+  const snap = useSnapshot(userLocationStore);
+  const bottomSheetRef = React.useRef<BottomSheet>(null);
+
+  useEffect(() => {
+    // Subscribe to all state changes
+    const unsubscribe = subscribe(userLocationStore, () =>
+      console.log("state has changed to", userLocationStore)
+    );
+    // Unsubscribe by calling the result
+    return () => unsubscribe();
+  }, []);
 
   const requestAndUpdateLocation = async () => {
     try {
@@ -118,7 +142,7 @@ export default function IndexScreen() {
           />
         )}
       </MapView>
-      <AnimatedWrapper
+      <View
         style={{
           position: "absolute",
           width: "100%",
@@ -126,15 +150,99 @@ export default function IndexScreen() {
           zIndex: 100,
           paddingHorizontal: measurements.paddingHorizontal,
         }}
-        onPress={() => router.navigate("/(main)/search-address")}
       >
-        <InputField
-          pointerEvents="none"
-          search
-          editable={false}
-          placeholder="Destination..."
-        />
-      </AnimatedWrapper>
+        <View style={{ backgroundColor: colors.background, borderRadius: 12 }}>
+          <View style={{ height: measurements.searchBarHeight + 10 }}>
+            <TextInput
+              placeholder="Where from?"
+              editable={false}
+              onPress={() =>
+                router.navigate("/(main)/search-address?search=from")
+              }
+              value={snap.fromText}
+              style={{
+                paddingHorizontal: 15,
+                textAlignVertical: "center",
+                height: "100%",
+                fontSize: font.bodyImportant,
+                color:
+                  snap.fromText && snap.fromText.length > 0
+                    ? colors.text
+                    : colors.border,
+              }}
+            />
+          </View>
+          <Divider />
+          <View style={{ height: measurements.searchBarHeight + 10 }}>
+            <TextInput
+              placeholder="Where to?"
+              editable={false}
+              onPress={() =>
+                router.navigate("/(main)/search-address?search=to")
+              }
+              value={snap.toText}
+              style={{
+                paddingHorizontal: 15,
+                textAlignVertical: "center",
+                height: "100%",
+                fontSize: font.bodyImportant,
+                color:
+                  snap.toText && snap.toText.length > 0
+                    ? colors.text
+                    : colors.border,
+              }}
+            />
+          </View>
+        </View>
+      </View>
+      <BottomSheet
+        backgroundStyle={{ backgroundColor: colors.background }}
+        handleIndicatorStyle={{ backgroundColor: colors.border }}
+        enableDynamicSizing
+        ref={bottomSheetRef}
+      >
+        <BottomSheetView
+          style={{ paddingHorizontal: measurements.paddingHorizontal }}
+        >
+          <ImportantBody style={{ fontWeight: "bold" }}>Overview</ImportantBody>
+          <Subtitle>
+            The following values are estimates. They may vary for various
+            reasons (weather, traffic, etc.).
+          </Subtitle>
+          <Divider style={{ marginVertical: measurements.marginBetween }} />
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 10,
+            }}
+          >
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Title2 style={{ fontWeight: "bold" }}>5 km</Title2>
+              <Subtitle>Distance</Subtitle>
+            </View>
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Title2 style={{ fontWeight: "bold" }}>20 min</Title2>
+              <Subtitle>Duration</Subtitle>
+            </View>
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Title2 style={{ fontWeight: "bold" }}>5 €</Title2>
+              <Subtitle>Est. Price</Subtitle>
+            </View>
+          </View>
+          <Divider style={{ marginVertical: measurements.marginBetween }} />
+
+          <View
+            style={{
+              gap: 10,
+              flexDirection: "row",
+              marginBottom: measurements.paddingBottom,
+            }}
+          >
+            <Button variant="outline" text="Cancel" style={{ flex: 1 }} />
+            <Button variant="primary" text="Request ride" style={{ flex: 1 }} />
+          </View>
+        </BottomSheetView>
+      </BottomSheet>
     </View>
   );
 }

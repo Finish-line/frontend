@@ -12,10 +12,15 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { measurements } from "@/constants/Measurements";
 import Button from "@/components/button";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { userLocationStore } from "@/store/userLocationStore";
+import { useSnapshot } from "valtio";
+import { router, useLocalSearchParams } from "expo-router";
 
 export default function SearchPlaceAutocompleteScreen() {
   const { colors } = useThemeColor();
   const insets = useSafeAreaInsets();
+  const snap = useSnapshot(userLocationStore);
+  const local = useLocalSearchParams();
 
   const [generalState, setGeneralState] = useState({
     results: [],
@@ -95,6 +100,17 @@ export default function SearchPlaceAutocompleteScreen() {
         style={{ backgroundColor: colors.background }}
         data={generalState.results}
         renderItem={({ item }: { item: any }) => {
+          let text =
+            (item.properties.street || item.properties.name) +
+            (item.properties.housenumber
+              ? " " + item.properties.housenumber
+              : "") +
+            (", " +
+              (item.properties.city ||
+                item.properties.county ||
+                item.properties.state ||
+                item.properties.country)) +
+            (" " + (item.properties.district || ""));
           return (
             <View>
               <TextIconBackground
@@ -108,21 +124,24 @@ export default function SearchPlaceAutocompleteScreen() {
                   )
                 }
                 rightIcon={null}
-                text={
-                  (item.properties.street || item.properties.name) +
-                  (item.properties.housenumber
-                    ? " " + item.properties.housenumber
-                    : "") +
-                  (", " +
-                    (item.properties.city ||
-                      item.properties.county ||
-                      item.properties.state ||
-                      item.properties.country)) +
-                  (" " + (item.properties.district || ""))
-                }
+                text={text}
                 onPress={() => {
-                  console.log(item.geometry.coordinates[1]);
-                  console.log(item.geometry.coordinates[0]);
+                  switch (local.search) {
+                    case "from":
+                      snap.setFromLat(item.geometry.coordinates[1]);
+                      snap.setFromLon(item.geometry.coordinates[0]);
+                      snap.setFromText(text);
+                      break;
+                    case "to":
+                      snap.setToLat(item.geometry.coordinates[1]);
+                      snap.setToLon(item.geometry.coordinates[0]);
+                      snap.setToText(text);
+                      break;
+                    default:
+                      alert("Something went wrong.");
+                      break;
+                  }
+                  router.back();
                 }}
               />
             </View>

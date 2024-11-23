@@ -50,6 +50,7 @@ export default function AppLayout() {
         options={{
           headerTitle: "Destination",
           headerBackTitle: "Map",
+          presentation: "modal",
         }}
       />
     </Stack>
