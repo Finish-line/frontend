@@ -13,6 +13,7 @@ interface Store {
   setToLon: (toLon: number) => void;
   setFromText: (text: string) => void;
   setToText: (text: string) => void;
+  reset: () => void;
 }
 
 export const userLocationStore: Store = proxy<Store>({
@@ -28,4 +29,12 @@ export const userLocationStore: Store = proxy<Store>({
   setToLon: (toLon: number) => (userLocationStore.toLon = toLon),
   setFromText: (text: string) => (userLocationStore.fromText = text),
   setToText: (text: string) => (userLocationStore.toText = text),
+  reset: () => {
+    userLocationStore.setFromLat(0.0);
+    userLocationStore.setFromLon(0.0);
+    userLocationStore.setToLat(0.0);
+    userLocationStore.setToLon(0.0);
+    userLocationStore.setFromText("");
+    userLocationStore.setToText("");
+  },
 });

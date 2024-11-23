@@ -10,15 +10,14 @@ import TextIconBackground from "@/components/text-icon-background";
 import InputField from "@/components/input-field";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { measurements } from "@/constants/Measurements";
-import Button from "@/components/button";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { userLocationStore } from "@/store/userLocationStore";
 import { useSnapshot } from "valtio";
 import { router, useLocalSearchParams } from "expo-router";
+import { requestAndUpdateLocation } from "@/utils/requestAndUpdateLocation";
 
 export default function SearchPlaceAutocompleteScreen() {
   const { colors } = useThemeColor();
-  const insets = useSafeAreaInsets();
   const snap = useSnapshot(userLocationStore);
   const local = useLocalSearchParams();
 
@@ -36,7 +35,7 @@ export default function SearchPlaceAutocompleteScreen() {
     fetch(
       `https://photon.komoot.io/api?q=${text}&lat=${48.26284365040816}
       &lon=${11.668135345320982}
-      &limit=5&osm_tag=building&osm_tag=highway&osm_tag=amenity&osm_tag=place:house&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village&osm_tag=place:hamlet&osm_tag=place:suburb&lang=en`,
+      &limit=5&osm_tag=building&osm_tag=highway&osm_tag=amenity&osm_tag=place:house&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village&osm_tag=place:hamlet&osm_tag=place:suburb&lang=de`,
       {
         method: "GET",
         headers: {
@@ -98,6 +97,24 @@ export default function SearchPlaceAutocompleteScreen() {
       <FlatList
         keyboardShouldPersistTaps="always"
         style={{ backgroundColor: colors.background }}
+        ListHeaderComponent={
+          local.search == "from" ? (
+            <TextIconBackground
+              icon={<MapPinIcon color={colors.text} />}
+              text="My current location"
+              onPress={() => {
+                requestAndUpdateLocation((ld) => {
+                  console.log(ld);
+                  snap.setFromLat(ld.latitude);
+                  snap.setFromLon(ld.longitude);
+                  snap.setFromText("My current location");
+                }, null);
+                router.back();
+              }}
+              rightIcon={null}
+            />
+          ) : null
+        }
         data={generalState.results}
         renderItem={({ item }: { item: any }) => {
           let text =
@@ -148,14 +165,6 @@ export default function SearchPlaceAutocompleteScreen() {
           );
         }}
       />
-      <View
-        style={{
-          bottom: insets.bottom,
-          paddingHorizontal: measurements.paddingHorizontal,
-        }}
-      >
-        <Button text="Continue" onPress={() => {}} />
-      </View>
     </>
   );
 }

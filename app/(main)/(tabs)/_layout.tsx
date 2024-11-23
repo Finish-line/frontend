@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { MapIcon, SettingsIcon } from "lucide-react-native";
+import { CarIcon, MapIcon, SettingsIcon } from "lucide-react-native";
 
 export default function TabLayout() {
   const { colors } = useThemeColor();
@@ -36,6 +36,15 @@ export default function TabLayout() {
           title: "Settings",
           tabBarIcon: ({ focused }) => (
             <SettingsIcon color={colors.text} strokeWidth={focused ? 3 : 2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ride-requests"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <CarIcon color={colors.text} strokeWidth={focused ? 3 : 2} />
           ),
         }}
       />

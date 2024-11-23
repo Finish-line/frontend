@@ -1,26 +1,22 @@
 import SinglePersonMarker from "@/components/marker/single-person";
 import { measurements } from "@/constants/Measurements";
 import React, { useState, useEffect } from "react";
-import { View, Alert, TextInput, Text } from "react-native";
+import { View, TextInput } from "react-native";
 import MapView from "react-native-maps";
 import * as Location from "expo-location";
 import { router } from "expo-router";
-import InputField from "@/components/input-field";
-import AnimatedWrapper from "@/components/animated-wrapper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Divider } from "@/components/divider";
 import { font } from "@/constants/Font";
-import {
-  ImportantBody,
-  Subtitle,
-  Title2,
-  Title3,
-} from "@/components/text/text";
+import { ImportantBody, Subtitle, Title2 } from "@/components/text/text";
 import { subscribe, useSnapshot } from "valtio";
 import { userLocationStore } from "@/store/userLocationStore";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import Button from "@/components/button";
+import { fetchTripInformation, postRequestRide } from "@/api/map";
+import { requestAndUpdateLocation } from "@/utils/requestAndUpdateLocation";
+import { color } from "@/constants/Colors";
 interface LocationData {
   latitude: number;
   longitude: number;
@@ -43,53 +39,44 @@ export default function IndexScreen() {
   const snap = useSnapshot(userLocationStore);
   const bottomSheetRef = React.useRef<BottomSheet>(null);
 
+  const [details, setDetails] = useState<{
+    distance: number;
+    duration: number;
+    price: number;
+  }>({
+    distance: 0,
+    duration: 0,
+    price: 0,
+  });
+
   useEffect(() => {
-    // Subscribe to all state changes
-    const unsubscribe = subscribe(userLocationStore, () =>
-      console.log("state has changed to", userLocationStore)
-    );
-    // Unsubscribe by calling the result
+    const unsubscribe = subscribe(userLocationStore, () => {
+      console.log("state has changed to", userLocationStore);
+      console.log("fromText", userLocationStore.fromText);
+      console.log("toText", userLocationStore.toText);
+      console.log("fromText length", userLocationStore.fromText?.length);
+      console.log("toText length", userLocationStore.toText?.length);
+      if (
+        userLocationStore.fromText &&
+        userLocationStore.toText &&
+        userLocationStore.fromText.length > 0 &&
+        userLocationStore.toText.length > 0
+      ) {
+        console.log("fetching trip information");
+        updateInformation();
+      }
+    });
     return () => unsubscribe();
   }, []);
 
-  const requestAndUpdateLocation = async () => {
-    try {
-      // Request permission
-      const { status } = await Location.requestForegroundPermissionsAsync();
+  async function updateInformation() {
+    let fetchedDetails = await fetchTripInformation();
+    setDetails(fetchedDetails);
+    bottomSheetRef.current?.snapToIndex(0);
+  }
 
-      if (status !== "granted") {
-        Alert.alert(
-          "Permission Denied",
-          "Please allow location access to use this feature.",
-          [{ text: "OK" }]
-        );
-        return;
-      }
-
-      // Get current location
-      const position = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-
-      const newRegion = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        latitudeDelta: 0.01, // Zoomed in view
-        longitudeDelta: 0.01,
-      };
-
-      setLocation(newRegion);
-
-      // Animate map to user's location
-      mapRef?.animateToRegion(newRegion, 1000);
-    } catch (error) {
-      Alert.alert("Error", "Unable to get your location.", [{ text: "OK" }]);
-    }
-  };
-
-  // Request location permission and get initial location when component mounts
   useEffect(() => {
-    requestAndUpdateLocation();
+    requestAndUpdateLocation(setLocation, mapRef);
 
     // Set up location watching
     let locationSubscription: Location.LocationSubscription;
@@ -165,11 +152,9 @@ export default function IndexScreen() {
                 textAlignVertical: "center",
                 height: "100%",
                 fontSize: font.bodyImportant,
-                color:
-                  snap.fromText && snap.fromText.length > 0
-                    ? colors.text
-                    : colors.border,
+                color: colors.text,
               }}
+              placeholderTextColor={color.gray}
             />
           </View>
           <Divider />
@@ -186,11 +171,9 @@ export default function IndexScreen() {
                 textAlignVertical: "center",
                 height: "100%",
                 fontSize: font.bodyImportant,
-                color:
-                  snap.toText && snap.toText.length > 0
-                    ? colors.text
-                    : colors.border,
+                color: colors.text,
               }}
+              placeholderTextColor={color.gray}
             />
           </View>
         </View>
@@ -199,6 +182,7 @@ export default function IndexScreen() {
         backgroundStyle={{ backgroundColor: colors.background }}
         handleIndicatorStyle={{ backgroundColor: colors.border }}
         enableDynamicSizing
+        index={-1}
         ref={bottomSheetRef}
       >
         <BottomSheetView
@@ -210,22 +194,30 @@ export default function IndexScreen() {
             reasons (weather, traffic, etc.).
           </Subtitle>
           <Divider style={{ marginVertical: measurements.marginBetween }} />
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 10,
-            }}
-          >
+          <View style={{ flexDirection: "row", gap: 10 }}>
             <View style={{ flex: 1, alignItems: "center" }}>
-              <Title2 style={{ fontWeight: "bold" }}>5 km</Title2>
+              <Title2 style={{ fontWeight: "bold" }}>
+                {new Intl.NumberFormat("de-DE", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(details?.distance / 1000)}
+                km
+              </Title2>
               <Subtitle>Distance</Subtitle>
             </View>
             <View style={{ flex: 1, alignItems: "center" }}>
-              <Title2 style={{ fontWeight: "bold" }}>20 min</Title2>
+              <Title2 style={{ fontWeight: "bold" }}>
+                {details?.duration} min
+              </Title2>
               <Subtitle>Duration</Subtitle>
             </View>
             <View style={{ flex: 1, alignItems: "center" }}>
-              <Title2 style={{ fontWeight: "bold" }}>5 €</Title2>
+              <Title2 style={{ fontWeight: "bold" }}>
+                {new Intl.NumberFormat("de-DE", {
+                  style: "currency",
+                  currency: "EUR",
+                }).format(details?.price / 100 ?? 0)}
+              </Title2>
               <Subtitle>Est. Price</Subtitle>
             </View>
           </View>
@@ -238,8 +230,23 @@ export default function IndexScreen() {
               marginBottom: measurements.paddingBottom,
             }}
           >
-            <Button variant="outline" text="Cancel" style={{ flex: 1 }} />
-            <Button variant="primary" text="Request ride" style={{ flex: 1 }} />
+            <Button
+              variant="outline"
+              text="Cancel"
+              onPress={() => {
+                snap.reset();
+                bottomSheetRef.current?.close();
+              }}
+              style={{ flex: 1 }}
+            />
+            <Button
+              variant="primary"
+              text="Request ride"
+              onPress={() => {
+                postRequestRide();
+              }}
+              style={{ flex: 1 }}
+            />
           </View>
         </BottomSheetView>
       </BottomSheet>
