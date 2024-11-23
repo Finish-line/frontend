@@ -27,7 +27,7 @@ export default function AppLayout() {
   }, 500);
 
   // if (!session) {
-  if (!session) {
+  if (session) {
     return <Redirect href="/welcome" />;
   }
 
@@ -45,6 +45,13 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="search-address"
+        options={{
+          headerTitle: "Destination",
+          headerBackTitle: "Map",
+        }}
+      />
     </Stack>
   );
 }

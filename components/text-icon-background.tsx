@@ -5,6 +5,7 @@ import { TextStyle, View } from "react-native";
 import PressableBackground from "./pressable-background";
 import { Body } from "./text/text";
 import { ArrowRightIcon } from "lucide-react-native";
+import { color } from "@/constants/Colors";
 
 interface TextIconBackgroundProps {
   onPress: () => void;
@@ -23,7 +24,7 @@ export default function TextIconBackground({
   onPress,
   text,
   icon = <View />,
-  rightIcon = <ArrowRightIcon />,
+  rightIcon = <ArrowRightIcon color={color.black} />,
   disabled = false,
   onLongPress,
   component,
