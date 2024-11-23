@@ -23,8 +23,10 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Maps",
+          headerTitle: "",
+          headerTransparent: true,
           tabBarIcon: ({ focused }) => (
-            <MapIcon strokeWidth={focused ? 4 : 2} />
+            <MapIcon color={colors.text} strokeWidth={focused ? 3 : 2} />
           ),
         }}
       />
@@ -33,7 +35,7 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ focused }) => (
-            <SettingsIcon strokeWidth={focused ? 4 : 2} />
+            <SettingsIcon color={colors.text} strokeWidth={focused ? 3 : 2} />
           ),
         }}
       />
