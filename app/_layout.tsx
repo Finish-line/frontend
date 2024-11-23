@@ -7,15 +7,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { magicAuth } from "@/auth/auth";
+import { View, Text } from "react-native";
 
 
-
-import { Magic } from '@magic-sdk/react-native-expo'
-
-import { Themes } from "@/constants/Colors";
-
-
-const magic = new Magic('pk_live_847C5550E8FD0C27')
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,12 +26,19 @@ export default function RootLayout() {
   }, [loaded, error]);
 
   if (!loaded && !error) {
-    return null;
-  }
+    return null;
+  }
+
+  const magic = magicAuth;
+
+  if(!magic) {
+    return <View><Text>Loading...</Text></View>
+  }
+  
   return (
   <ThemeProvider >
+    <magic.Relayer />
    <SessionProvider>
-        <magic.Relayer />
         <GestureHandlerRootView>
           <Stack>
             <Stack.Screen
