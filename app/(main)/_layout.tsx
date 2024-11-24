@@ -1,10 +1,7 @@
-import { color } from "@/constants/Colors";
-import { useSession } from "@/hooks/ctx";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Redirect, SplashScreen, Stack } from "expo-router";
 import React, { useEffect } from "react";
-import { Appearance, Text, View } from "react-native";
-import { Magic } from "@magic-sdk/react-native-expo";
+import { Appearance } from "react-native";
 import { magicAuth } from "@/auth/auth";
 
 export default function AppLayout() {
@@ -24,7 +21,7 @@ export default function AppLayout() {
   }, 500);
 
   if (!magicAuth.user.isLoggedIn()) {
-    return <Redirect href="/login" />;
+    return <Redirect href="/not-signed-in" />;
   }
 
   return (
@@ -45,6 +42,14 @@ export default function AppLayout() {
         name="search-address"
         options={{
           headerTitle: "Destination",
+          headerBackTitle: "Map",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="requested-drive"
+        options={{
+          headerTitle: "Requested Drive",
           headerBackTitle: "Map",
           presentation: "modal",
         }}

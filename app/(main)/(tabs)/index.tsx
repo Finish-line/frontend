@@ -17,6 +17,7 @@ import Button from "@/components/button";
 import { fetchTripInformation, postRequestRide } from "@/api/map";
 import { requestAndUpdateLocation } from "@/utils/requestAndUpdateLocation";
 import { color } from "@/constants/Colors";
+import Slider from "@react-native-community/slider";
 interface LocationData {
   latitude: number;
   longitude: number;
@@ -70,8 +71,13 @@ export default function IndexScreen() {
   }, []);
 
   async function updateInformation() {
-    let fetchedDetails = await fetchTripInformation();
+    console.log(userLocationStore);
+    let fetchedDetails = await fetchTripInformation(userLocationStore);
     setDetails(fetchedDetails);
+    setDetails((prev) => ({
+      ...prev,
+      price: (details?.distance / 1000) * (1 / 100),
+    }));
     bottomSheetRef.current?.snapToIndex(0);
   }
 
@@ -207,7 +213,11 @@ export default function IndexScreen() {
             </View>
             <View style={{ flex: 1, alignItems: "center" }}>
               <Title2 style={{ fontWeight: "bold" }}>
-                {details?.duration} min
+                {new Intl.NumberFormat("de-DE", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(details?.duration)}{" "}
+                min
               </Title2>
               <Subtitle>Duration</Subtitle>
             </View>
@@ -215,12 +225,27 @@ export default function IndexScreen() {
               <Title2 style={{ fontWeight: "bold" }}>
                 {new Intl.NumberFormat("de-DE", {
                   style: "currency",
-                  currency: "EUR",
-                }).format((2 * details?.distance) / 1000 ?? 0)}
+                  currency: "SOL",
+                }).format(details?.price ?? 0)}
               </Title2>
-              <Subtitle>Rec. Price</Subtitle>
+              <Subtitle>Price</Subtitle>
             </View>
           </View>
+          <Slider
+            style={{ width: "100%", height: 40 }}
+            onValueChange={(value) => {
+              console.log(value);
+              setDetails((prev) => ({
+                ...prev,
+                price: value,
+              }));
+            }}
+            value={(details?.distance / 1000) * (1 / 100)}
+            minimumValue={0}
+            maximumValue={(details?.distance / 1000) * (1 / 100) * 2}
+            minimumTrackTintColor={colors.border}
+            maximumTrackTintColor={colors.border}
+          />
           <Divider style={{ marginVertical: measurements.marginBetween }} />
 
           <View
@@ -243,7 +268,7 @@ export default function IndexScreen() {
               variant="primary"
               text="Request ride"
               onPress={() => {
-                postRequestRide();
+                router.navigate(`/requested-drive?price=${details.price}`);
               }}
               style={{ flex: 1 }}
             />

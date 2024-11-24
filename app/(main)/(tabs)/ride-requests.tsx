@@ -1,76 +1,68 @@
 import { measurements } from "@/constants/Measurements";
-import React from "react";
-import { View, FlatList, Dimensions } from "react-native";
+import React, { useEffect } from "react";
+import {
+  View,
+  FlatList,
+  Dimensions,
+  Linking,
+  RefreshControl,
+} from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ImportantBody, Subtitle, Title3 } from "@/components/text/text";
 import Button from "@/components/button";
 import { postRequestRide } from "@/api/map";
+import { fetchRideRequests } from "@/api/rideRequests";
 
-const mockData = [
-  {
-    lon: -73.935242,
-    lat: 40.73061,
-    distance: 5.2,
-    duration: 15,
-    price: 12.5,
-    distanceFromDriver: 2.3,
-    durationToUser: 5,
-    from: "New York, NY",
-    to: "Brooklyn, NY",
-  },
-  {
-    lon: -118.243683,
-    lat: 34.052235,
-    distance: 8.4,
-    duration: 25,
-    price: 18.75,
-    distanceFromDriver: 3.1,
-    durationToUser: 8,
-    from: "Los Angeles, CA",
-    to: "Santa Monica, CA",
-  },
-  {
-    lon: -0.127758,
-    lat: 51.507351,
-    distance: 3.1,
-    duration: 10,
-    price: 8.0,
-    distanceFromDriver: 1.2,
-    durationToUser: 3,
-    from: "London, UK",
-    to: "Greenwich, UK",
-  },
-  {
-    lon: 139.691711,
-    lat: 35.689487,
-    distance: 7.6,
-    duration: 20,
-    price: 15.0,
-    distanceFromDriver: 2.8,
-    durationToUser: 6,
-    from: "Tokyo, Japan",
-    to: "Shibuya, Japan",
-  },
-  {
-    lon: 2.352222,
-    lat: 48.856613,
-    distance: 4.5,
-    duration: 12,
-    price: 10.25,
-    distanceFromDriver: 1.9,
-    durationToUser: 4,
-    from: "Paris, France",
-    to: "Versailles, France",
-  },
-];
+const openAppleMaps = (
+  fromLat: number,
+  fromLon: number,
+  toLat: number,
+  toLon: number
+): Promise<void> => {
+  const url = `http://maps.apple.com/?saddr=${fromLat},${fromLon}&daddr=${toLat},${toLon}&dirflg=d`;
+
+  return Linking.openURL(url).catch((err) => {
+    console.error("An error occurred while opening Apple Maps:", err);
+    throw err;
+  });
+};
+
+type DataInterface = {
+  id: number;
+  price: number;
+  duration: number;
+  distance: number;
+  start: string;
+  destination: string;
+  startLat: number;
+  startLong: number;
+  destLat: number;
+  destLong: number;
+};
 
 export default function IndexScreen() {
   const { colors } = useThemeColor();
 
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [data, setData] = React.useState<DataInterface[] | null>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+  const fetchData = async () => {
+    setRefreshing(true);
+    const fetchedData = await fetchRideRequests();
+    setData(fetchedData);
+    setRefreshing(false);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <FlatList
-        data={mockData}
+        data={data}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+        }
         renderItem={({ item }) => (
           <View
             style={{
@@ -89,7 +81,7 @@ export default function IndexScreen() {
                 paddingBottom: measurements.marginBetween,
               }}
             >
-              Route: {item.from} → {item.to}
+              Route: {item.start} → {item.destination}
             </ImportantBody>
             <View
               style={{
@@ -111,7 +103,11 @@ export default function IndexScreen() {
               </View>
               <View style={{ flex: 1, alignItems: "center" }}>
                 <Title3 style={{ fontWeight: "bold" }}>
-                  {item.duration} min
+                  {new Intl.NumberFormat("de-DE", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(item.duration / 60)}{" "}
+                  min
                 </Title3>
                 <Subtitle>Duration</Subtitle>
               </View>
@@ -119,17 +115,32 @@ export default function IndexScreen() {
                 <Title3 style={{ fontWeight: "bold" }}>
                   {new Intl.NumberFormat("de-DE", {
                     style: "currency",
-                    currency: "EUR",
-                  }).format(item.price / 100 ?? 0)}
+                    currency: "SOL",
+                  }).format(item.price ?? 0)}
                 </Title3>
                 <Subtitle>Revenue</Subtitle>
               </View>
             </View>
-            <Button
-              text="Accept ride"
-              smallButton
-              onPress={() => postRequestRide()}
-            />
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <Button
+                text="Open maps"
+                smallButton
+                variant="outline"
+                onPress={() =>
+                  openAppleMaps(
+                    item.startLat,
+                    item.startLong,
+                    item.destLat,
+                    item.destLong
+                  )
+                }
+              />
+              <Button
+                text="Accept ride"
+                smallButton
+                onPress={() => postRequestRide()}
+              />
+            </View>
           </View>
         )}
         ItemSeparatorComponent={() => (

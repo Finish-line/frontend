@@ -1,4 +1,3 @@
-import LoginScreen from "@/app/(auth)/login";
 import { magicAuth } from "@/auth/auth";
 import Button from "@/components/button";
 import SinglePersonMarker from "@/components/marker/single-person";
@@ -15,13 +14,11 @@ export default function SettingsScreen() {
   const logout = async () => {
     try {
       await magicAuth.user.logout();
-      router.push("/login");
+      router.push("/not-signed-in");
     } catch (error) {
       console.log(error);
     }
   };
-
-  
 
   const showInfo = async () => {
     console.log("showing info");
@@ -41,7 +38,7 @@ export default function SettingsScreen() {
     } else {
       return "Logout";
     }
-  }
+  };
 
   const isLoggedIn = async () => {
     return await magicAuth.user.isLoggedIn();
@@ -54,17 +51,21 @@ export default function SettingsScreen() {
       const status = await isLoggedIn();
       setLoggedIn(status);
     };
-      {loggedIn && <Button text="Logout" onPress={logout}/>}
+    {
+      loggedIn && <Button text="Logout" onPress={logout} />;
+    }
   }, []);
-
 
   return (
     <View style={{ height: "100%", width: "100%" }}>
-      <Button text="Login" onPress={async () => {
-        router.push("/login");
-      }}/>
-      <Button text="Show Info" onPress={showInfo}/>
-      {loggedIn && <Button text="Logout" onPress={logout}/>}
+      <Button
+        text="Login"
+        onPress={async () => {
+          router.push("/not-signed-in");
+        }}
+      />
+      <Button text="Show Info" onPress={showInfo} />
+      {loggedIn && <Button text="Logout" onPress={logout} />}
     </View>
   );
 }
