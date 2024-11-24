@@ -14,8 +14,6 @@ export const fetchTripInformation = async (snap: any) => {
     });
 };
 
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
 export const postRequestRide = async (
   price: number,
   start: string,

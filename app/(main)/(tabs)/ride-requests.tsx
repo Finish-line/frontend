@@ -12,6 +12,7 @@ import { ImportantBody, Subtitle, Title3 } from "@/components/text/text";
 import Button from "@/components/button";
 import { postRequestRide } from "@/api/map";
 import { fetchRideRequests } from "@/api/rideRequests";
+import { router } from "expo-router";
 
 const openAppleMaps = (
   fromLat: number,
@@ -138,7 +139,12 @@ export default function IndexScreen() {
               <Button
                 text="Accept ride"
                 smallButton
-                onPress={() => postRequestRide()}
+                onPress={() =>
+                  router.navigate(
+                    `/accepted-drive?toText=${item.destination}&fromText=${item.start}`,
+                    {}
+                  )
+                }
               />
             </View>
           </View>

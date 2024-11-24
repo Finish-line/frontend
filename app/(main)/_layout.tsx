@@ -50,7 +50,13 @@ export default function AppLayout() {
         name="requested-drive"
         options={{
           headerTitle: "Requested Drive",
-          headerBackTitle: "Map",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="accepted-drive"
+        options={{
+          headerTitle: "Accepted Drive",
           presentation: "modal",
         }}
       />
